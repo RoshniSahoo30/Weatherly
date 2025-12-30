@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const API = axios.create({
-  baseURL: "https://weatherly-5vri.onrender.com"
+  baseURL: "https://weatherly-5vri.onrender.com/api"
 })
 
 // Attach token automatically
