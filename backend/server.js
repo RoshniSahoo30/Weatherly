@@ -38,10 +38,6 @@ app.use("/api/weather", weatherRoutes)
 app.use("/api/favorites", favoriteRoutes)
 app.use("/api/history", historyRoutes)
 
-// ---------- HEALTH CHECK ----------
-app.get("/health", (req, res) => {
-  res.json({ status: "OK" })
-})
 
 // ---------- START SERVER ----------
 const PORT = process.env.PORT || 5000
