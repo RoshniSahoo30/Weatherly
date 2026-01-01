@@ -1,10 +1,11 @@
 import axios from "axios"
 
 const API = axios.create({
-  baseURL: "https://weatherly-5vri.onrender.com/api"
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL ||
+    "http://localhost:5001/api",
 })
 
-// Attach token automatically
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token")
   if (token) {

@@ -9,20 +9,41 @@ import Favorites from "./components/favorites"
 
 const App = () => {
   const { user, logout, darkMode, setDarkMode } = useContext(AuthContext)
+
   const [selectedCity, setSelectedCity] = useState("")
   const [favorites, setFavorites] = useState([])
+  const [dailyForecast, setDailyForecast] = useState([])
+  
 
   const bg = darkMode ? "bg-slate-900 text-white" : "bg-slate-100 text-gray-900"
   const headerBg = darkMode ? "bg-slate-800" : "bg-white"
 
+
+  /* Load favorites on login */
   useEffect(() => {
     if (user) loadFavorites()
+    else {
+      setFavorites([])
+      //setDailyForecast([])
+      setSelectedCity("")
+    }
   }, [user])
 
   const loadFavorites = async () => {
     const res = await API.get("/favorites")
     setFavorites(res.data)
   }
+
+  /* 📅 Fetch 7-day forecast */
+const fetch7DayForecast = async (lat, lon) => {
+  try {
+    const res = await API.get(`/weather/daily?lat=${lat}&lon=${lon}`)
+    console.log(res.data);
+    setDailyForecast(res.data.daily.slice(0, 7))
+  } catch (err) {
+    setDailyForecast([])
+  }
+}
 
   return (
     <div className={`min-h-screen ${bg}`}>
@@ -34,7 +55,6 @@ const App = () => {
           </h1>
 
           <div className="flex items-center gap-4">
-            {/* 🌙 TOGGLE */}
             <button
               onClick={() => setDarkMode((p) => !p)}
               className="px-3 py-1 border rounded"
@@ -67,20 +87,58 @@ const App = () => {
         )}
 
         {user && (
-          <div className="grid lg:grid-cols-3 gap-8">
-            <section className="lg:col-span-2">
+          <div className="grid lg:grid-cols-[1fr_2fr_1fr] gap-8">
+            {/* LEFT: 7-Day Forecast */}
+            <section className={`rounded-xl shadow p-4 text-sm self-start ${
+                darkMode
+                  ? "bg-slate-800 text-gray-100"
+                  : "bg-white text-gray-800"
+              }`}>
+              <h3 className="font-semibold mb-3">
+                5-Day Forecast
+              </h3>
+
+              {dailyForecast.length === 0 && (
+                <p className="text-gray-400">
+                  Search a city to see forecast
+                </p>
+              )}
+
+              {dailyForecast.map((day, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between border-b pb-1 mb-1 last:border-none"
+                >
+                  <span>
+                    {new Date(day.dt * 1000).toLocaleDateString("en-US", {
+                      weekday: "short",
+                    })}
+                  </span>
+                  <span className="font-medium">
+                    {Math.round(day.temp)}°C
+                  </span>
+                </div>
+              ))}
+            </section>
+
+            {/* CENTER: Weather */}
+            <section>
               <Weather
                 city={selectedCity}
                 onAddFavorite={(fav) =>
                   setFavorites((prev) => [...prev, fav])
                 }
+                onWeatherLoaded={(lat, lon) =>
+                  fetch7DayForecast(lat, lon)
+                }
               />
             </section>
 
+            {/* RIGHT: Favorites */}
             <Favorites
               favorites={favorites}
               setFavorites={setFavorites}
-              onCitySelect={setSelectedCity}
+              onCitySelect={(city) => setSelectedCity(city)}
             />
           </div>
         )}
