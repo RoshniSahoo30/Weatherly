@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react"
 import API from "../services/api"
 import HourlyChart from "./HourlyChart"
-import WeatherMap from "./WeatherMap"
+import WeatherMap from "./weathermap"
 import { AuthContext } from "../context/authcontext"
 
 const Weather = ({ city, onAddFavorite, onWeatherLoaded }) => {
